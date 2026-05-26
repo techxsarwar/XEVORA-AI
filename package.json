@@ -1,0 +1,15 @@
+{
+  "name": "xevora-ai-vibe-studio",
+  "version": "1.0.0",
+  "description": "Next-Gen Client-Side AI Vibe Studio and sandboxed compiler.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.0.4",
+    "vite": "^4.4.5"
+  }
+}
