@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/mulerouter/:path*",
+      "destination": "https://proxy.mulerouter.com/:path*"
+    }
+  ]
+}
