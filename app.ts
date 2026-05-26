@@ -19,21 +19,21 @@ interface ChatState {
 
 const AI_PROVIDERS = [
     {
+        name: "Llama 3.3 70B (OpenRouter)",
+        model: "meta-llama/llama-3.3-70b-instruct",
+        key: import.meta.env.VITE_OPENROUTER_API_KEY,
+        url: "https://openrouter.ai/api/v1/chat/completions"
+    },
+    {
+        name: "Qwen Coder 32B (OpenRouter)",
+        model: "qwen/qwen-2.5-coder-32b-instruct",
+        key: import.meta.env.VITE_OPENROUTER_API_KEY,
+        url: "https://openrouter.ai/api/v1/chat/completions"
+    },
+    {
         name: "Qwen3 Max (Mule Router)",
         model: "qwen3-max",
-        key: "sk-mr-a53b6b8b153174108db176328da61c30f83472b1ff6a6a050883ce92bd07a764",
-        url: "/api/mulerouter/vendors/openai/v1/chat/completions"
-    },
-    {
-        name: "Qwen Coder (Mule Router - No Prefix)",
-        model: "qwen-2.5-coder-32b-instruct",
-        key: "sk-mr-a53b6b8b153174108db176328da61c30f83472b1ff6a6a050883ce92bd07a764",
-        url: "/api/mulerouter/vendors/openai/v1/chat/completions"
-    },
-    {
-        name: "Qwen Coder (Mule Router - Prefixed)",
-        model: "qwen/qwen-2.5-coder-32b-instruct",
-        key: "sk-mr-a53b6b8b153174108db176328da61c30f83472b1ff6a6a050883ce92bd07a764",
+        key: import.meta.env.VITE_MULE_ROUTER_API_KEY || import.meta.env.VITE_OPENROUTER_API_KEY,
         url: "/api/mulerouter/vendors/openai/v1/chat/completions"
     }
 ];
