@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Xevora AI Vibe Studio — Multi-Model Coding Engine</title>
+  <meta name="description" content="Xevora routes across multiple LLMs, generates modular code files, and previews them live. Zero copy-paste, zero downtime. Built for developers." />
+  <meta name="keywords" content="AI coding, multi-model, LLM, code generation, live preview, TypeScript, Vite" />
+  <meta property="og:title" content="Xevora AI Vibe Studio" />
+  <meta property="og:description" content="Multi-model AI coding engine with live preview and modular file generation." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════ NAVBAR ═══════════════════════════════════ -->
+  <nav class="navbar" id="navbar" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo" aria-label="Xevora AI home">
+        <span class="nav-logo-dot" aria-hidden="true"></span>
+        <span class="nav-logo-text">Xevora AI</span>
+      </a>
+
+      <ul class="nav-links" id="nav-links" role="list">
+        <li><a href="#features" class="nav-link">Features</a></li>
+        <li><a href="#how-it-works" class="nav-link">Docs</a></li>
+        <li>
+          <a href="https://github.com/techxsarwar/XEVORA-AI" class="nav-link" target="_blank" rel="noopener noreferrer">
+            GitHub
+          </a>
+        </li>
+      </ul>
+
+      <a href="https://github.com/techxsarwar/XEVORA-AI" class="btn btn-primary nav-cta" target="_blank" rel="noopener noreferrer">
+        Get started →
+      </a>
+
+      <button class="nav-hamburger" id="nav-hamburger" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="nav-links">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════════════ HERO ═══════════════════════════════════ -->
+  <section class="hero" id="home" aria-labelledby="hero-heading">
+    <div class="hero-grid-bg" aria-hidden="true"></div>
+    <div class="hero-glow" aria-hidden="true"></div>
+
+    <div class="container">
+      <div class="hero-badge">
+        <span class="badge-dot" aria-hidden="true"></span>
+        <span>v1.0 — Multi-model matrix active</span>
+      </div>
+
+      <h1 class="hero-headline" id="hero-heading">
+        Build faster with<br>
+        <span class="hero-accent">AI that never stops.</span>
+      </h1>
+
+      <p class="hero-sub">
+        Xevora routes across multiple LLMs, generates modular code, and previews it live —
+        zero copy-paste, zero downtime.
+      </p>
+
+      <div class="hero-ctas">
+        <a href="https://github.com/techxsarwar/XEVORA-AI" class="btn btn-primary" target="_blank" rel="noopener noreferrer" id="cta-clone">
+          Clone the repo
+        </a>
+        <a href="#how-it-works" class="btn btn-ghost" id="cta-watch">
+          Watch it build →
+        </a>
+      </div>
+
+      <div class="hero-trust" role="list" aria-label="Key features">
+        <span class="trust-badge" role="listitem">
+          <span aria-hidden="true">★</span> Multi-model routing
+        </span>
+        <span class="trust-sep" aria-hidden="true">·</span>
+        <span class="trust-badge" role="listitem">
+          <span aria-hidden="true">⚡</span> Live preview
+        </span>
+        <span class="trust-sep" aria-hidden="true">·</span>
+        <span class="trust-badge" role="listitem">
+          <span aria-hidden="true">📦</span> Modular output
+        </span>
+      </div>
+
+      <!-- Terminal mockup -->
+      <div class="terminal" role="region" aria-label="Xevora build demo terminal">
+        <div class="terminal-bar" aria-hidden="true">
+          <span class="term-dot term-red"></span>
+          <span class="term-dot term-yellow"></span>
+          <span class="term-dot term-green"></span>
+          <span class="term-title">xevora — build</span>
+        </div>
+        <div class="terminal-body">
+          <div class="terminal-output" id="terminal-output" aria-live="polite" aria-atomic="false">
+          </div>
+          <div class="terminal-cursor" id="terminal-cursor" aria-hidden="true"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════ FEATURES ═══════════════════════════════════ -->
+  <section class="features" id="features" aria-labelledby="features-heading">
+    <div class="container">
+      <div class="section-label">CAPABILITIES</div>
+      <h2 class="section-heading" id="features-heading">
+        Everything you need.<br>Nothing you don't.
+      </h2>
+      <p class="section-sub">
+        Xevora is engineered around one idea: your code should arrive clean, runnable,
+        and already split into files.
+      </p>
+
+      <div class="features-grid">
+
+        <article class="feature-card scroll-reveal" aria-labelledby="feat-1-title">
+          <div class="feature-icon" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+              <rect x="2" y="2" width="11" height="11" rx="2" stroke="var(--accent-cyan)" stroke-width="1.5"/>
+              <rect x="15" y="2" width="11" height="11" rx="2" stroke="var(--accent-cyan)" stroke-width="1.5" stroke-dasharray="3 2"/>
+              <rect x="2" y="15" width="11" height="11" rx="2" stroke="var(--accent-cyan)" stroke-width="1.5" stroke-dasharray="3 2"/>
+              <path d="M15 20.5h11M20.5 15v11" stroke="var(--accent-violet)" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3 class="feature-title" id="feat-1-title">Matrix Routing</h3>
+          <p class="feature-desc">Auto-failover across LLMs. Primary down? Xevora switches in milliseconds — no interruption, no error screen.</p>
+        </article>
+
+        <article class="feature-card scroll-reveal" aria-labelledby="feat-2-title">
+          <div class="feature-icon" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+              <rect x="2" y="4" width="24" height="20" rx="2" stroke="var(--accent-cyan)" stroke-width="1.5"/>
+              <path d="M7 10h5M7 14h9M7 18h6" stroke="var(--accent-violet)" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M19 14l3 3-3 3" stroke="var(--accent-cyan)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3 class="feature-title" id="feat-2-title">Modular Output</h3>
+          <p class="feature-desc">index.html + styles.css + app.js. Clean, decoupled, ready to ship — never a monolithic blob of inline spaghetti.</p>
+        </article>
+
+        <article class="feature-card scroll-reveal" aria-labelledby="feat-3-title">
+          <div class="feature-icon" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+              <rect x="3" y="5" width="22" height="16" rx="2" stroke="var(--accent-cyan)" stroke-width="1.5"/>
+              <path d="M10 21h8M14 21v2" stroke="var(--accent-muted, #4a4a6a)" stroke-width="1.5" stroke-linecap="round"/>
+              <circle cx="14" cy="13" r="4" stroke="var(--accent-ember)" stroke-width="1.5"/>
+              <circle cx="14" cy="13" r="1.5" fill="var(--accent-ember)"/>
+            </svg>
+          </div>
+          <h3 class="feature-title" id="feat-3-title">Live Preview</h3>
+          <p class="feature-desc">One click. Your code runs in a sandboxed iframe, right inside chat — no localhost, no tab switching.</p>
+        </article>
+
+        <article class="feature-card scroll-reveal" aria-labelledby="feat-4-title">
+          <div class="feature-icon" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+              <rect x="2" y="4" width="24" height="20" rx="2" stroke="var(--accent-cyan)" stroke-width="1.5"/>
+              <path d="M6 10l4 3-4 3" stroke="var(--accent-cyan)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M13 16h8" stroke="var(--accent-violet)" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3 class="feature-title" id="feat-4-title">Terminal UI</h3>
+          <p class="feature-desc">Monospace-first. Dark substrate. No dashboards — this is a tool built for developers who live in the terminal.</p>
+        </article>
+
+        <article class="feature-card scroll-reveal" aria-labelledby="feat-5-title">
+          <div class="feature-icon" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+              <circle cx="14" cy="14" r="10" stroke="var(--accent-cyan)" stroke-width="1.5"/>
+              <path d="M14 4v20M4 14h20" stroke="var(--accent-violet)" stroke-width="1" stroke-dasharray="2 2"/>
+              <path d="M8 8c0 6 4 9 6 12M20 8c0 6-4 9-6 12" stroke="var(--accent-cyan)" stroke-width="1.2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3 class="feature-title" id="feat-5-title">Fallback Matrix</h3>
+          <p class="feature-desc">Llama 3 70B, Qwen Coder, Mistral — always a backup, always online. You'll never see a 503 in production.</p>
+        </article>
+
+        <article class="feature-card scroll-reveal" aria-labelledby="feat-6-title">
+          <div class="feature-icon" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+              <rect x="8" y="2" width="12" height="8" rx="2" stroke="var(--accent-cyan)" stroke-width="1.5"/>
+              <path d="M4 10h20v14a2 2 0 01-2 2H6a2 2 0 01-2-2V10z" stroke="var(--accent-cyan)" stroke-width="1.5"/>
+              <path d="M11 17l2 2 4-4" stroke="var(--accent-ember)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3 class="feature-title" id="feat-6-title">API Key Safety</h3>
+          <p class="feature-desc">Your key stays in .env.local. Never logged, never sent to our servers — it never leaves your machine.</p>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════ HOW IT WORKS ═══════════════════════════════════ -->
+  <section class="how-it-works" id="how-it-works" aria-labelledby="hiw-heading">
+    <div class="container">
+      <div class="section-label">WORKFLOW</div>
+      <h2 class="section-heading" id="hiw-heading">Three steps.<br>Ship in minutes.</h2>
+
+      <div class="steps-row">
+
+        <article class="step scroll-reveal" aria-labelledby="step-1-title">
+          <div class="step-num-bg" aria-hidden="true">01</div>
+          <div class="step-content">
+            <div class="step-index" aria-hidden="true">
+              <span>01</span>
+            </div>
+            <h3 class="step-title" id="step-1-title">Write your prompt</h3>
+            <p class="step-desc">Describe what you want in plain English. Xevora understands context — layout, stack, even aesthetic.</p>
+          </div>
+        </article>
+
+        <div class="step-connector" aria-hidden="true">
+          <div class="step-line"></div>
+          <svg class="step-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 7h10M8 3l4 4-4 4" stroke="var(--border-bright)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+
+        <article class="step scroll-reveal" aria-labelledby="step-2-title">
+          <div class="step-num-bg" aria-hidden="true">02</div>
+          <div class="step-content">
+            <div class="step-index" aria-hidden="true">
+              <span>02</span>
+            </div>
+            <h3 class="step-title" id="step-2-title">Xevora builds the files</h3>
+            <p class="step-desc">The engine routes to the best available model, streams the response, and parses each named code block instantly.</p>
+          </div>
+        </article>
+
+        <div class="step-connector" aria-hidden="true">
+          <div class="step-line"></div>
+          <svg class="step-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 7h10M8 3l4 4-4 4" stroke="var(--border-bright)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+
+        <article class="step scroll-reveal" aria-labelledby="step-3-title">
+          <div class="step-num-bg" aria-hidden="true">03</div>
+          <div class="step-content">
+            <div class="step-index" aria-hidden="true">
+              <span>03</span>
+            </div>
+            <h3 class="step-title" id="step-3-title">Preview and export</h3>
+            <p class="step-desc">Click preview — a sandboxed iframe renders your output. Hit export — you get a clean ZIP with all three files.</p>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════ SHOWCASE ═══════════════════════════════════ -->
+  <section class="showcase" id="showcase" aria-labelledby="showcase-heading">
+    <div class="container">
+      <div class="section-label">LIVE OUTPUT</div>
+      <h2 class="section-heading" id="showcase-heading">From prompt to preview.</h2>
+
+      <div class="showcase-split">
+
+        <!-- Code panel mockup -->
+        <div class="code-panel scroll-reveal" role="region" aria-label="Generated code preview">
+          <div class="code-panel-bar">
+            <div class="code-tabs">
+              <button class="code-tab active" data-tab="html" aria-pressed="true">index.html</button>
+              <button class="code-tab" data-tab="css" aria-pressed="false">styles.css</button>
+              <button class="code-tab" data-tab="js" aria-pressed="false">app.js</button>
+            </div>
+          </div>
+          <div class="code-panel-body">
+            <pre class="code-display" id="code-display" aria-label="Code content" role="document"><code id="code-content"></code></pre>
+          </div>
+        </div>
+
+        <!-- Browser mockup -->
+        <div class="browser-mockup scroll-reveal" role="region" aria-label="Live preview mockup">
+          <div class="browser-bar">
+            <div class="browser-dots" aria-hidden="true">
+              <span class="b-dot b-red"></span>
+              <span class="b-dot b-yellow"></span>
+              <span class="b-dot b-green"></span>
+            </div>
+            <div class="browser-url" aria-hidden="true">
+              <span class="url-lock">🔒</span>
+              <span>localhost:4200</span>
+            </div>
+          </div>
+          <div class="browser-body">
+            <!-- Fake rendered portfolio inside the "browser" -->
+            <div class="fake-portfolio">
+              <div class="fp-nav">
+                <div class="fp-logo">
+                  <div class="fp-dot"></div>
+                  <span>portfolio.dev</span>
+                </div>
+                <div class="fp-links">
+                  <div class="fp-link-item"></div>
+                  <div class="fp-link-item"></div>
+                  <div class="fp-link-item"></div>
+                </div>
+              </div>
+              <div class="fp-hero">
+                <div class="fp-tag">Available for work</div>
+                <div class="fp-h1">
+                  <div class="fp-line fp-line--lg"></div>
+                  <div class="fp-line fp-line--xl fp-line--accent"></div>
+                </div>
+                <div class="fp-sub">
+                  <div class="fp-line fp-line--sm"></div>
+                  <div class="fp-line fp-line--sm fp-line--short"></div>
+                </div>
+                <div class="fp-btns">
+                  <div class="fp-btn fp-btn--solid">View work</div>
+                  <div class="fp-btn fp-btn--ghost">Contact</div>
+                </div>
+              </div>
+              <div class="fp-cards">
+                <div class="fp-card">
+                  <div class="fp-card-img"></div>
+                  <div class="fp-card-line"></div>
+                  <div class="fp-card-line fp-card-line--sm"></div>
+                </div>
+                <div class="fp-card">
+                  <div class="fp-card-img fp-card-img--alt"></div>
+                  <div class="fp-card-line"></div>
+                  <div class="fp-card-line fp-card-line--sm"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <p class="showcase-caption">
+        What Xevora generates — in seconds. No editing required.
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════ TECH STACK ═══════════════════════════════════ -->
+  <section class="tech-stack" id="tech" aria-labelledby="tech-heading">
+    <div class="container">
+      <div class="section-label">BUILT WITH</div>
+      <div class="tech-strip" role="list" aria-label="Technology stack" id="tech-heading">
+        <span class="tech-pill" role="listitem">TypeScript</span>
+        <span class="tech-pill" role="listitem">Vite</span>
+        <span class="tech-pill" role="listitem">Marked.js</span>
+        <span class="tech-pill" role="listitem">Highlight.js</span>
+        <span class="tech-pill" role="listitem">OpenRouter API</span>
+        <span class="tech-pill" role="listitem">JSZip</span>
+        <span class="tech-pill" role="listitem">Vanilla CSS</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════ CTA BANNER ═══════════════════════════════════ -->
+  <section class="cta-banner" id="cta" aria-labelledby="cta-heading">
+    <div class="cta-glow" aria-hidden="true"></div>
+    <div class="container">
+      <div class="cta-inner scroll-reveal">
+        <div class="cta-tag">Open Source · Free to use</div>
+        <h2 class="cta-headline" id="cta-heading">Ready to build<br>without limits?</h2>
+        <p class="cta-sub">Clone the repo. Add your API key. Start in 60 seconds.</p>
+        <div class="cta-actions">
+          <a href="https://github.com/techxsarwar/XEVORA-AI" class="btn btn-primary btn-lg" target="_blank" rel="noopener noreferrer">
+            Get started →
+          </a>
+          <div class="cta-hint">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <path d="M7 1a6 6 0 100 12A6 6 0 007 1zM7 4v4l2.5 1.5" stroke="var(--text-muted)" stroke-width="1.2" stroke-linecap="round"/>
+            </svg>
+            <span>Setup takes under 60 seconds</span>
+          </div>
+        </div>
+        <div class="cta-code-hint">
+          <code>git clone https://github.com/techxsarwar/XEVORA-AI.git</code>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════ FOOTER ═══════════════════════════════════ -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-grid">
+
+        <!-- Left -->
+        <div class="footer-col footer-brand">
+          <a href="#" class="footer-logo" aria-label="Xevora AI home">
+            <span class="nav-logo-dot" aria-hidden="true"></span>
+            <span>Xevora AI</span>
+          </a>
+          <p class="footer-tagline">Built for builders.</p>
+          <div class="footer-live">
+            <span class="live-dot" aria-hidden="true"></span>
+            <span>Matrix online — 3 models active</span>
+          </div>
+        </div>
+
+        <!-- Center -->
+        <nav class="footer-col footer-links" aria-label="Footer navigation">
+          <h3 class="footer-col-title">Project</h3>
+          <ul role="list">
+            <li><a href="https://github.com/techxsarwar/XEVORA-AI" target="_blank" rel="noopener noreferrer" class="footer-link">GitHub</a></li>
+            <li><a href="https://github.com/techxsarwar/XEVORA-AI#readme" target="_blank" rel="noopener noreferrer" class="footer-link">Docs</a></li>
+            <li><a href="https://github.com/techxsarwar/XEVORA-AI/issues" target="_blank" rel="noopener noreferrer" class="footer-link">Issues</a></li>
+            <li><a href="https://github.com/techxsarwar/XEVORA-AI/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" class="footer-link">License</a></li>
+          </ul>
+        </nav>
+
+        <!-- Right -->
+        <div class="footer-col footer-author">
+          <h3 class="footer-col-title">Author</h3>
+          <p class="footer-author-name">
+            <a href="https://github.com/techxsarwar" target="_blank" rel="noopener noreferrer" class="footer-author-link">
+              Sarwar Altaf Dar
+            </a>
+          </p>
+          <p class="footer-author-detail">Building from Kashmir, one model at a time.</p>
+          <div class="footer-models">
+            <span class="model-badge">qwen-2.5-coder-32b</span>
+            <span class="model-badge">llama-3.3-70b</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="footer-bottom">
+        <span>© 2025 Xevora AI. Open source under MIT.</span>
+        <span class="footer-bottom-right">Designed for builders. Engineered for zero downtime.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

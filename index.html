@@ -1,28 +1,354 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Xevora AI — Vibe Studio</title>
-    <meta name="description" content="Xevora AI Vibe Studio — Chat with the most powerful free AI coder. Describe what you want to build, and watch it happen."/>
-
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet"/>
-
-    <!-- Material Symbols -->
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-
-    <!-- Marked.js for robust Markdown parsing -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
-    <!-- Highlight.js for code syntax highlighting (Dark) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"/>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-
-    <link rel="stylesheet" href="styles.css"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Xevora AI Vibe Studio — Cosmic Forge</title>
+  <meta name="description" content="Xevora routes across multiple LLMs, generates modular code files, and previews them live. Zero copy-paste, zero downtime. Built for developers." />
+  
+  <link rel="stylesheet" href="/homepage/styles.css" />
 </head>
 <body>
-    <div id="app"></div>
-    <script type="module" src="/app.ts"></script>
+
+  <!-- Forge Canvas Background -->
+  <canvas id="forge-canvas"></canvas>
+
+  <!-- ═══════════════════════════════════ NAVBAR ═══════════════════════════════════ -->
+  <nav class="navbar" id="navbar" role="navigation">
+    <div class="nav-inner">
+      <a href="/" class="nav-logo" aria-label="Xevora AI home">
+        <span class="nav-logo-sigil">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L2 12L12 22L22 12L12 2Z" stroke="var(--gold)" stroke-width="2"/>
+            <path d="M12 8L8 12L12 16L16 12L12 8Z" fill="var(--gold)"/>
+          </svg>
+        </span>
+        <span class="nav-logo-text">Xevora</span>
+      </a>
+
+      <ul class="nav-links" id="nav-links" role="list">
+        <li><a href="#features" class="nav-link">Capabilities</a></li>
+        <li><a href="#how-it-works" class="nav-link">Workflow</a></li>
+        <li><a href="https://github.com/techxsarwar/XEVORA-AI" class="nav-link" target="_blank">GitHub</a></li>
+      </ul>
+
+      <a href="/studio/index.html" class="btn btn-primary">
+        Enter Forge
+      </a>
+
+      <button class="nav-hamburger" id="nav-hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════════════ HERO ═══════════════════════════════════ -->
+  <section class="hero" id="home">
+    <div class="forge-float forge-float--1"></div>
+    <div class="forge-float forge-float--2"></div>
+    <div class="forge-float forge-float--3"></div>
+
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-eyebrow">
+          <span class="eyebrow-line"></span>
+          <span class="eyebrow-text">v1.0.4 — Matrix Active</span>
+          <span class="eyebrow-dot"></span>
+        </div>
+
+        <h1 class="hero-headline">
+          <span class="hero-line-1">Architect with</span>
+          <span class="hero-line-2"><em>pure plasma.</em></span>
+        </h1>
+
+        <p class="hero-sub">
+          Xevora routes across multiple LLMs, generates modular code, and previews it live.
+          Obsidian void. Plasma gradients. Angular brutalism.
+        </p>
+
+        <div class="hero-ctas">
+          <a href="/studio/index.html" class="btn btn-primary btn-xl">
+            Ignite Engine
+          </a>
+          <a href="https://github.com/techxsarwar/XEVORA-AI" class="btn btn-ghost btn-xl" target="_blank">
+            View Source
+          </a>
+        </div>
+
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <span class="stat-num">3</span>
+            <span class="stat-label">Active Models</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="hero-stat">
+            <span class="stat-num">~80ms</span>
+            <span class="stat-label">Routing Latency</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="hero-stat">
+            <span class="stat-num">100%</span>
+            <span class="stat-label">Local execution</span>
+          </div>
+        </div>
+
+        <!-- Terminal mockup -->
+        <div class="terminal">
+          <div class="terminal-chrome">
+            <div class="chrome-dots">
+              <div class="chrome-dot dot-red"></div>
+              <div class="chrome-dot dot-amber"></div>
+              <div class="chrome-dot dot-green"></div>
+            </div>
+            <div class="chrome-title">xevora-forge ~ zsh</div>
+            <div class="chrome-status">
+              <span>Online</span>
+              <span class="chrome-pulse"></span>
+            </div>
+          </div>
+          <div class="terminal-body">
+            <div class="terminal-output" id="terminal-output"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════ MARQUEE ═══════════════════════════════════ -->
+  <div class="marquee-strip">
+    <div class="marquee-track">
+      <span>React</span><span class="mx">✦</span>
+      <span>Vite</span><span class="mx">✦</span>
+      <span>TypeScript</span><span class="mx">✦</span>
+      <span>Tailwind</span><span class="mx">✦</span>
+      <span>Claude 3.5</span><span class="mx">✦</span>
+      <span>Llama 3</span><span class="mx">✦</span>
+      <span>Qwen Coder</span><span class="mx">✦</span>
+      <span>ESBuild</span><span class="mx">✦</span>
+      <span>React</span><span class="mx">✦</span>
+      <span>Vite</span><span class="mx">✦</span>
+      <span>TypeScript</span><span class="mx">✦</span>
+      <span>Tailwind</span><span class="mx">✦</span>
+      <span>Claude 3.5</span><span class="mx">✦</span>
+      <span>Llama 3</span><span class="mx">✦</span>
+      <span>Qwen Coder</span><span class="mx">✦</span>
+      <span>ESBuild</span><span class="mx">✦</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════ FEATURES ═══════════════════════════════════ -->
+  <section class="features" id="features">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Core Architecture</span>
+        <h2 class="section-title">Built for the <br><span class="accent-text">obsidian void.</span></h2>
+      </div>
+
+      <div class="features-grid">
+
+        <article class="feat-card feat-card--large scroll-reveal">
+          <div class="feat-glow feat-glow--gold"></div>
+          <div class="feat-card-inner">
+            <div class="feat-icon feat-icon--gold">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 7L12 12L22 7L12 2Z"/>
+                <path d="M2 17L12 22L22 17"/>
+                <path d="M2 12L12 17L22 12"/>
+              </svg>
+            </div>
+            <h3 class="feat-title">Matrix Routing Engine</h3>
+            <p class="feat-desc">Auto-failover across top-tier LLMs. If the primary model falters, Xevora instantly reroutes to a secondary — zero downtime, zero error screens.</p>
+            <div class="feat-models">
+              <span class="model-tag">Llama 3.3 70B</span>
+              <span class="model-tag">Qwen 2.5 Coder</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="feat-card scroll-reveal">
+          <div class="feat-glow feat-glow--violet"></div>
+          <div class="feat-card-inner">
+            <div class="feat-icon feat-icon--violet">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                <line x1="9" y1="3" x2="9" y2="21"/>
+              </svg>
+            </div>
+            <h3 class="feat-title">Modular Generation</h3>
+            <p class="feat-desc">Code is output cleanly into separate HTML, CSS, and JS files. Ready to ship instantly.</p>
+          </div>
+        </article>
+
+        <article class="feat-card scroll-reveal">
+          <div class="feat-glow feat-glow--ember"></div>
+          <div class="feat-card-inner">
+            <div class="feat-icon feat-icon--ember">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+              </svg>
+            </div>
+            <h3 class="feat-title">Live Preview</h3>
+            <p class="feat-desc">Run your generated code instantly in a secure, sandboxed iframe. No local servers needed.</p>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════ HOW IT WORKS ═══════════════════════════════════ -->
+  <section class="how-it-works" id="how-it-works">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Ignition Sequence</span>
+        <h2 class="section-title">Three steps to <br><span class="accent-text">plasma.</span></h2>
+      </div>
+
+      <div class="steps">
+        <article class="step scroll-reveal">
+          <div class="step-num">01</div>
+          <h3 class="step-title">Construct Prompt</h3>
+          <p class="step-desc">Define your UI requirements in natural language. Specify layouts, aesthetics, and logic.</p>
+          <div class="step-connector">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </div>
+        </article>
+
+        <article class="step scroll-reveal">
+          <div class="step-num">02</div>
+          <h3 class="step-title">Matrix Assembly</h3>
+          <p class="step-desc">The engine parses output into separate modular files as the LLM streams the response.</p>
+          <div class="step-connector">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </div>
+        </article>
+
+        <article class="step scroll-reveal">
+          <div class="step-num">03</div>
+          <h3 class="step-title">Execute & Export</h3>
+          <p class="step-desc">Verify in the live preview sandbox, then export the entire workspace as a ready-to-use ZIP.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════ TECH STACK ═══════════════════════════════════ -->
+  <section class="tech-stack" id="tech">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag section-tag--center">Engine Components</span>
+        <h2 class="section-title" style="text-align: center;">Forged with modern<br><span class="accent-text">primitives.</span></h2>
+      </div>
+      
+      <div class="tech-grid">
+        <div class="tech-item scroll-reveal">
+          <div class="tech-name">TypeScript</div>
+          <div class="tech-bar" style="width: 100%"></div>
+        </div>
+        <div class="tech-item scroll-reveal">
+          <div class="tech-name">Vite</div>
+          <div class="tech-bar" style="width: 80%"></div>
+        </div>
+        <div class="tech-item scroll-reveal">
+          <div class="tech-name">React</div>
+          <div class="tech-bar" style="width: 90%"></div>
+        </div>
+        <div class="tech-item scroll-reveal">
+          <div class="tech-name">OpenRouter</div>
+          <div class="tech-bar" style="width: 75%"></div>
+        </div>
+        <div class="tech-item scroll-reveal">
+          <div class="tech-name">JSZip</div>
+          <div class="tech-bar" style="width: 60%"></div>
+        </div>
+        <div class="tech-item scroll-reveal">
+          <div class="tech-name">Highlight.js</div>
+          <div class="tech-bar" style="width: 85%"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════ CTA BANNER ═══════════════════════════════════ -->
+  <section class="cta-section">
+    <div class="cta-forge-glow"></div>
+    <div class="container">
+      <div class="cta-inner scroll-reveal">
+        <div class="cta-badge">Zero setup required</div>
+        <h2 class="cta-heading">Unleash the <br><span class="accent-text">Forge.</span></h2>
+        <p class="cta-sub">Open the Studio. Enter your prompt. Watch it materialize.</p>
+        
+        <div class="cta-actions">
+          <a href="/studio/index.html" class="btn btn-primary btn-xl">
+            Launch Studio
+          </a>
+          
+          <button class="cta-git-cmd" id="clone-cmd">
+            <code>git clone https://github.com/techxsarwar/XEVORA-AI.git</code>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════ FOOTER ═══════════════════════════════════ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="/" class="footer-logo">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2L2 12L12 22L22 12L12 2Z" stroke="var(--gold)" stroke-width="2"/>
+              <path d="M12 8L8 12L12 16L16 12L12 8Z" fill="var(--gold)"/>
+            </svg>
+            <span>Xevora AI</span>
+          </a>
+          <p class="footer-tagline">Cosmic Forge Design System</p>
+          <div class="footer-status">
+            <span class="status-dot"></span>
+            <span>Matrix operational</span>
+          </div>
+        </div>
+
+        <div class="footer-links">
+          <h3 class="footer-col-title">Navigation</h3>
+          <ul>
+            <li><a href="/studio/index.html" class="footer-link">Studio</a></li>
+            <li><a href="https://github.com/techxsarwar/XEVORA-AI" class="footer-link" target="_blank">GitHub</a></li>
+            <li><a href="https://github.com/techxsarwar/XEVORA-AI/issues" class="footer-link" target="_blank">Issues</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-author">
+          <h3 class="footer-col-title">Architect</h3>
+          <a href="https://github.com/techxsarwar" class="footer-author-name" target="_blank">Sarwar Altaf Dar</a>
+          <p class="footer-author-detail">Forging from Kashmir, one model at a time.</p>
+          <div class="footer-models">
+            <span class="model-tag model-tag--sm">Llama 3.3 70B</span>
+            <span class="model-tag model-tag--sm">Qwen 2.5 Coder 32B</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>© 2026 Xevora AI. MIT License.</span>
+        <span>Obsidian void. Plasma gradients. Angular brutalism.</span>
+      </div>
+    </div>
+  </footer>
+
+  <div class="copy-toast" id="copy-toast">Copied to clipboard</div>
+
+  <script src="/homepage/app.js"></script>
 </body>
 </html>

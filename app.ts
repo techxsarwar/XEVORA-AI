@@ -3,6 +3,8 @@
 // Terminal-dark. Monospace-first. Pure utility.
 // ============================================================
 
+import { OutputManager } from "./outputManager";
+
 // ── Types ────────────────────────────────────────────────────
 interface Message {
     id: string;
@@ -46,21 +48,59 @@ function getActiveProvider() {
 const SYSTEM_PROMPT = `You are Xevora AI — an elite full-stack engineer and UI designer.
 You write production-ready code that is clean, modern, and fully functional.
 
-When building applications:
-- Always separate logic into multiple files (e.g. index.html, styles.css, app.js).
-- Format code blocks using a custom language identifier that includes the filename:
-  \`\`\`html index.html
-  <!-- HTML code -->
-  \`\`\`
-  \`\`\`css styles.css
-  /* CSS code */
-  \`\`\`
-  \`\`\`javascript app.js
-  // JS code
-  \`\`\`
-- Link your CSS and JS correctly in the HTML.
-- Make designs beautiful: dark modes, smooth animations, premium feel.
-- Write complete, working code — never pseudocode or placeholders.
+## Code Output Format (STRICT — always follow)
+
+When generating web projects, you MUST split your output into separate, named files.
+Never output a single monolithic HTML file with embedded <style> or <script> tags.
+
+Use this exact fencing syntax:
+
+\`\`\`html filename="index.html"
+<!DOCTYPE html>
+...your HTML here (link to styles.css and app.js — no inline styles or scripts)...
+\`\`\`
+
+\`\`\`css filename="styles.css"
+...your CSS here...
+\`\`\`
+
+\`\`\`javascript filename="app.js"
+...your JavaScript here...
+\`\`\`
+
+Rules:
+1. The \`filename=\` attribute is MANDATORY on every code block.
+2. HTML must reference \`styles.css\` via <link> and \`app.js\` via <script src>.
+3. No inline <style> or <script> tags in index.html.
+4. If the project needs multiple JS files, name them explicitly:
+   filename="router.js", filename="api.js", etc.
+5. Always output ALL files in a single response — do not split across messages.
+6. If generating a backend, also include: filename="server.js", filename="package.json".
+
+Example of correct output:
+
+\`\`\`html filename="index.html"
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My App</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app"></div>
+  <script src="app.js"></script>
+</body>
+</html>
+\`\`\`
+
+\`\`\`css filename="styles.css"
+/* styles here */
+\`\`\`
+
+\`\`\`javascript filename="app.js"
+// logic here
+\`\`\`
 
 Keep responses focused and direct. Output signal, not noise.`;
 
@@ -98,11 +138,23 @@ function renderMd(raw: string): string {
             let code = typeof arg1 === 'object' ? arg1.text : arg1;
             let rawLang = typeof arg1 === 'object' ? arg1.lang : arg2;
             code = String(code || '');
-            rawLang = String(rawLang || '');
+            rawLang = String(rawLang || '').trim();
             
-            const langParts = rawLang.split(' ');
-            const lang = langParts[0] || 'text';
-            const filename = langParts.length > 1 ? langParts.slice(1).join(' ') : '';
+            let lang = 'text';
+            let filename = '';
+            
+            // Check for filename="..." pattern
+            const fnMatch = rawLang.match(/filename=["']?([^"']+)["']?/i);
+            if (fnMatch) {
+                filename = fnMatch[1];
+                // extract clean language
+                lang = rawLang.replace(/filename=["']?[^"'\s]+["']?/i, '').trim().split(/\s+/)[0] || 'text';
+            } else {
+                // Fallback to space-separated legacy format e.g. "html index.html"
+                const langParts = rawLang.split(/\s+/);
+                lang = langParts[0] || 'text';
+                filename = langParts.slice(1).join(' ');
+            }
             
             const id = 'cb-' + uid();
             let highlighted = escHtml(code);
@@ -135,76 +187,116 @@ function renderMd(raw: string): string {
     return escHtml(raw).replace(/\n/g, '<br/>');
 }
 // ── Render Shell ──────────────────────────────────────────────
+let activeOutputManager: OutputManager | null = null;
+
+function renderWorkspacePlaceholder(): void {
+    const pane = $('output-panel');
+    if (!pane) return;
+
+    pane.innerHTML = `
+    <div class="workspace-placeholder">
+      <div class="workspace-placeholder-inner">
+        <div class="workspace-placeholder-logo">XV</div>
+        <h3 class="workspace-placeholder-title">Xevora Compiler Sandbox</h3>
+        <p class="workspace-placeholder-desc">Waiting for instructions. Describe what you want to build in the chat to start compiling modular files and launching live previews.</p>
+      </div>
+    </div>
+    `;
+    activeOutputManager = null;
+}
+
+function toggleWorkspaceMobile(): void {
+    const pane = $('output-panel');
+    if (!pane) return;
+    pane.classList.toggle('active');
+    
+    const btn = $('mobile-toggle-workspace');
+    if (btn) {
+        const isActive = pane.classList.contains('active');
+        btn.textContent = isActive ? "Show Chat" : "Workspace";
+        btn.style.background = isActive ? "var(--gold)" : "var(--void-3)";
+        btn.style.color = isActive ? "#000" : "var(--text-1)";
+    }
+}
+(window as any).toggleWorkspaceMobile = toggleWorkspaceMobile;
+
+// ── Render Shell ──────────────────────────────────────────────
 function renderApp(): void {
     const app = $('app');
     if (!app) return;
 
     app.innerHTML = `
-  <!-- Left sidebar -->
-  <aside class="sidebar">
-    <div class="logo-mark" onclick="newChat()" title="New Chat">XV</div>
+  <div class="workspace-container-layout">
+    <!-- Left sidebar -->
+    <aside class="sidebar">
+      <a href="/" class="logo-mark" title="Back to Homepage" style="text-decoration:none;">XV</a>
 
-    <button class="nav-btn active" onclick="newChat()" title="New Chat">
-      <span class="material-symbols-outlined" style="font-size:18px">add</span>
-    </button>
-    <button class="nav-btn" title="History">
-      <span class="material-symbols-outlined" style="font-size:18px">forum</span>
-    </button>
-    <button class="nav-btn" title="Search">
-      <span class="material-symbols-outlined" style="font-size:18px">search</span>
-    </button>
+      <button class="nav-btn active" onclick="newChat()" title="New Chat">
+        <span class="material-symbols-outlined" style="font-size:18px">add</span>
+      </button>
+      <button class="nav-btn" title="History">
+        <span class="material-symbols-outlined" style="font-size:18px">forum</span>
+      </button>
+      <button class="nav-btn" title="Search">
+        <span class="material-symbols-outlined" style="font-size:18px">search</span>
+      </button>
 
-    <div style="flex:1"></div>
+      <div style="flex:1"></div>
 
-    <div style="width:28px;height:28px;border-radius:0.125rem;background:#272727;border:1px solid #2e2e2e;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;letter-spacing:0.06em;color:#8a8a8a;cursor:default" title="Sarwar">SA</div>
-  </aside>
+      <div style="width:28px;height:28px;border-radius:var(--r-md);background:var(--void-4);border:1px solid var(--border-2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;letter-spacing:0.06em;color:var(--text-3);cursor:default" title="Sarwar">SA</div>
+    </aside>
 
-  <!-- Main pane -->
-  <div class="main-pane">
-
-    <!-- Top bar -->
-    <header class="topbar">
-      <div style="display:flex;align-items:center;gap:12px">
-        <span class="topbar-title">Xevora AI</span>
-        <div style="width:1px;height:16px;background:#2e2e2e"></div>
-        <span class="topbar-model" id="model-label">${getActiveProvider().name}</span>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <span class="chip chip-online" id="status-chip">Online</span>
-      </div>
-    </header>
-
-    <!-- Chat messages -->
-    <div class="chat-scroll" id="chat-scroll">
-      <div class="chat-inner" id="chat-messages"></div>
-    </div>
-
-    <!-- Prompt bar -->
-    <div class="prompt-bar-wrap">
-      <div class="prompt-bar-inner">
-        <div class="prompt-box" id="prompt-box">
-          <span class="prompt-prefix">›</span>
-          <textarea
-            id="prompt-input"
-            class="prompt-textarea"
-            placeholder="describe what you want to build..."
-            rows="1"
-            oninput="autoResize(this)"
-            onkeydown="handleKey(event)"
-            spellcheck="false"
-          ></textarea>
-          <button class="send-btn" id="send-btn" onclick="sendMessage()" title="Send  ⏎">
-            <span class="material-symbols-outlined" style="font-size:16px;font-variation-settings:'FILL' 1">arrow_upward</span>
-          </button>
+    <!-- Chat pane -->
+    <div class="chat-pane">
+      <!-- Top bar -->
+      <header class="topbar">
+        <div style="display:flex;align-items:center;gap:12px">
+          <a href="/" class="topbar-title" style="text-decoration:none;" title="Back to Homepage">Xevora AI</a>
+          <div style="width:1px;height:16px;background:var(--border-2)"></div>
+          <span class="topbar-model" id="model-label">${getActiveProvider().name}</span>
         </div>
-        <p class="prompt-hint">⏎ send &nbsp;·&nbsp; ⇧⏎ newline &nbsp;·&nbsp; xevora may hallucinate — review all code</p>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button id="mobile-toggle-workspace" onclick="toggleWorkspaceMobile()" style="display:none;background:var(--void-3);border:1px solid var(--border-1);color:var(--text-1);padding:4px 8px;border-radius:var(--r-sm);font-size:11px;font-family:inherit;cursor:pointer;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;margin-right:8px;">Workspace</button>
+          <span class="chip chip-online" id="status-chip">Online</span>
+        </div>
+      </header>
+
+      <!-- Chat messages -->
+      <div class="chat-scroll" id="chat-scroll">
+        <div class="chat-inner" id="chat-messages"></div>
+      </div>
+
+      <!-- Prompt bar -->
+      <div class="prompt-bar-wrap">
+        <div class="prompt-bar-inner">
+          <div class="prompt-box" id="prompt-box">
+            <span class="prompt-prefix">›</span>
+            <textarea
+              id="prompt-input"
+              class="prompt-textarea"
+              placeholder="describe what you want to build..."
+              rows="1"
+              oninput="autoResize(this)"
+              onkeydown="handleKey(event)"
+              spellcheck="false"
+            ></textarea>
+            <button class="send-btn" id="send-btn" onclick="sendMessage()" title="Send  ⏎">
+              <span class="material-symbols-outlined" style="font-size:16px;font-variation-settings:'FILL' 1">arrow_upward</span>
+            </button>
+          </div>
+          <p class="prompt-hint">⏎ send &nbsp;·&nbsp; ⇧⏎ newline &nbsp;·&nbsp; xevora may hallucinate — review all code</p>
+        </div>
       </div>
     </div>
+
+    <!-- Workspace Pane (Right-side Panel) -->
+    <div class="workspace-pane" id="output-panel"></div>
   </div>
 
   <textarea id="copy-helper" style="position:fixed;opacity:0;pointer-events:none;left:-9999px;top:-9999px"></textarea>
   `;
 
+    renderWorkspacePlaceholder();
     renderHome();
 }
 
@@ -224,7 +316,7 @@ function renderHome(): void {
     <div class="divider"></div>
 
     <div>
-      <p style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#4b5563;margin-bottom:10px">// Quick commands</p>
+      <p style="font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:12px">// Quick commands</p>
       <div class="cmd-grid">
         <div class="cmd-card" onclick="fillPrompt('Build a glassmorphic SaaS analytics dashboard with metric cards, area charts, and a dark sidebar nav using Tailwind CSS')">
           <div class="cmd-card-label">→ saas dashboard</div>
@@ -267,9 +359,9 @@ function addUserRow(text: string): void {
     const row = document.createElement('div');
     row.className = 'msg-row msg-row-user';
     row.innerHTML = `
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;justify-content:flex-end">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;justify-content:flex-end">
       <span class="msg-meta">${ts(new Date())}</span>
-      <span style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#8a8a8a">You</span>
+      <span style="font-family:var(--font-display);font-size:12px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;color:var(--text-3)">You</span>
     </div>
     <div class="msg-user-bubble">${escHtml(text)}</div>
   `;
@@ -306,38 +398,33 @@ function addThinkingRow(): HTMLElement {
     return row;
 }
 
-function addAIRow(content: string): void {
-    const typing = $('typing-row');
-    if (typing) typing.remove();
-
-    const c = $('chat-messages');
-    if (!c) return;
-
-    const row = document.createElement('div');
-    row.className = 'msg-row msg-row-ai';
-    row.innerHTML = `
-    <div class="msg-ai-header" style="display:flex; justify-content:space-between; align-items:center;">
-      <div>
-        <span class="ai-label">Xevora</span>
-        <span class="msg-meta">${ts(new Date())} &nbsp;·&nbsp; ${getActiveProvider().name}</span>
-      </div>
-      <button class="preview-btn" onclick="openPreview(this)" style="font-size:12px; background:var(--primary); color:var(--on-primary); padding: 4px 12px; border-radius: 4px; border:none; cursor:pointer; font-weight: bold;">
-        Live Preview
-      </button>
-    </div>
-    <div class="msg-ai-body">${renderMd(content)}</div>
-  `;
-    c.appendChild(row);
-
-    // Syntax highlight any newly added code blocks
-    if ((window as any).hljs) {
-        row.querySelectorAll('pre code').forEach(el => {
-            (window as any).hljs.highlightElement(el as HTMLElement);
-        });
-    }
-
-    scrollChat();
+function loadWorkspaceWithMarkdown(content: string): void {
+    const pane = $('output-panel');
+    if (!pane) return;
+    
+    activeOutputManager = new OutputManager(pane, {
+        zipName: "xevora-project.zip",
+        autoPreview: true
+    });
+    activeOutputManager.handleAIOutput(content);
 }
+
+function loadMessageIntoWorkspace(btn: HTMLElement): void {
+    const row = btn.closest('.msg-row');
+    if (!row) return;
+    const content = row.getAttribute('data-raw-content');
+    if (content) {
+        loadWorkspaceWithMarkdown(content);
+        
+        // Mobile panel slider
+        const pane = $('output-panel');
+        if (pane && !pane.classList.contains('active')) {
+            toggleWorkspaceMobile();
+        }
+    }
+}
+
+(window as any).loadMessageIntoWorkspace = loadMessageIntoWorkspace;
 
 function addErrorRow(content: string): void {
     const typing = $('typing-row');
@@ -379,8 +466,72 @@ async function sendMessage(): Promise<void> {
     const typingRow = addThinkingRow();
 
     try {
-        const reply = await fetchWithRetry(typingRow);
-        addAIRow(reply);
+        let isFirstChunk = true;
+        let aiRowBody: HTMLElement | null = null;
+        let aiRow: HTMLElement | null = null;
+
+        const reply = await fetchWithRetry(typingRow, (currentText) => {
+            if (isFirstChunk) {
+                isFirstChunk = false;
+                if (typingRow && typingRow.parentNode) typingRow.remove();
+                
+                const c = $('chat-messages');
+                if (c) {
+                    aiRow = document.createElement('div');
+                    aiRow.className = 'msg-row msg-row-ai';
+                    aiRow.innerHTML = `
+                    <div class="msg-ai-header" style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+                      <div style="display:flex;align-items:center;gap:12px">
+                        <span class="ai-label">Xevora</span>
+                        <span class="msg-meta">${ts(new Date())} &nbsp;·&nbsp; ${getActiveProvider().name}</span>
+                      </div>
+                      <div class="msg-ai-header-actions"></div>
+                    </div>
+                    <div class="msg-ai-body"></div>
+                    `;
+                    c.appendChild(aiRow);
+                    aiRowBody = aiRow.querySelector('.msg-ai-body');
+                }
+            }
+            if (aiRowBody) {
+                aiRowBody.innerHTML = renderMd(currentText);
+                scrollChat();
+            }
+        });
+
+        if (aiRow) {
+            const hasCodeBlocks = reply.includes('```');
+            if (hasCodeBlocks) {
+                const headerActions = aiRow.querySelector('.msg-ai-header-actions');
+                if (headerActions) {
+                    headerActions.innerHTML = `
+                      <button class="preview-btn" onclick="loadMessageIntoWorkspace(this)">
+                        Load Workspace
+                      </button>
+                    `;
+                }
+            }
+
+            if ((window as any).hljs) {
+                aiRow.querySelectorAll('pre code').forEach(el => {
+                    (window as any).hljs.highlightElement(el as HTMLElement);
+                });
+            }
+
+            if (hasCodeBlocks) {
+                loadWorkspaceWithMarkdown(reply);
+                
+                const isMobile = window.innerWidth <= 960;
+                if (isMobile) {
+                    const pane = $('output-panel');
+                    if (pane && !pane.classList.contains('active')) {
+                        toggleWorkspaceMobile();
+                    }
+                }
+            }
+            aiRow.setAttribute('data-raw-content', reply);
+        }
+
         state.conversationHistory.push({ role: 'assistant', content: reply });
         state.messages.push({ id: uid(), role: 'assistant', content: reply, timestamp: new Date() });
     } catch (err: any) {
@@ -404,7 +555,7 @@ async function sendMessage(): Promise<void> {
     }
 }
 
-async function fetchWithRetry(typingRow: HTMLElement): Promise<string> {
+async function fetchWithRetry(typingRow: HTMLElement, onChunk: (text: string) => void): Promise<string> {
     const startIndex = currentProviderIndex;
     let attempts = 0;
     let lastError: any = null;
@@ -427,17 +578,17 @@ async function fetchWithRetry(typingRow: HTMLElement): Promise<string> {
                         ...state.conversationHistory.slice(-10)
                     ],
                     max_tokens: 4096,
-                    temperature: 0.7
+                    temperature: 0.7,
+                    stream: true
                 })
             });
 
             if (res.status === 429 || res.status === 529 || res.status === 502) {
-                // Rate limited or overloaded. Switch to next provider.
                 attempts++;
                 if (attempts < AI_PROVIDERS.length) {
                     currentProviderIndex = (currentProviderIndex + 1) % AI_PROVIDERS.length;
                     switchProviderUI(typingRow, getActiveProvider().name);
-                    continue; // Try next model immediately
+                    continue;
                 } else {
                     const e: any = new Error(`All fallback models are currently rate-limited.`);
                     e.status = 429;
@@ -449,21 +600,46 @@ async function fetchWithRetry(typingRow: HTMLElement): Promise<string> {
                 const text = await res.text();
                 const e: any = new Error(`HTTP ${res.status} from ${provider.name}: ${text}`);
                 e.status = res.status;
-                throw e; // Hard fail on auth/bad request errors
-            }
-
-            const data = await res.json();
-            const content = data.choices?.[0]?.message?.content;
-            if (!content || content.trim() === '') {
-                const e: any = new Error(`Empty response from ${provider.name}. Forcing failover.`);
-                e.status = 502; // Treat empty response as a bad gateway to force fallback
                 throw e;
             }
-            return content;
+
+            const reader = res.body?.getReader();
+            if (!reader) throw new Error("No response body.");
+
+            const decoder = new TextDecoder("utf-8");
+            let done = false;
+            let fullText = "";
+            let buffer = "";
+
+            while (!done) {
+                const { value, done: readerDone } = await reader.read();
+                done = readerDone;
+                if (value) {
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop() || "";
+                    
+                    for (const line of lines) {
+                        const trimmed = line.trim();
+                        if (trimmed.startsWith('data: ')) {
+                            const dataStr = trimmed.slice(6);
+                            if (dataStr === '[DONE]') continue;
+                            try {
+                                const data = JSON.parse(dataStr);
+                                const delta = data.choices?.[0]?.delta?.content || "";
+                                fullText += delta;
+                                onChunk(fullText);
+                            } catch (e) {
+                                // Ignore incomplete or invalid JSON
+                            }
+                        }
+                    }
+                }
+            }
+            return fullText;
 
         } catch (err: any) {
-            // Network errors or throw above
-            if (err.status === 429) throw err; // Already handled exhaust
+            if (err.status === 429) throw err;
             lastError = err;
             attempts++;
             if (attempts < AI_PROVIDERS.length) {
@@ -483,10 +659,10 @@ function switchProviderUI(el: HTMLElement, newModelName: string): void {
     const bodyEl   = el.querySelector('#tool-panel-body') as HTMLElement;
     if (statusEl) { 
         statusEl.textContent = 'failover triggered...'; 
-        statusEl.style.color = '#d97706'; 
+        statusEl.style.color = 'var(--ember-bright)'; 
     }
     if (bodyEl) { 
-        bodyEl.innerHTML = `<span style="color:#ef4444">Timeout</span> &nbsp;→&nbsp; Rerouting to <strong>${newModelName}</strong>...`; 
+        bodyEl.innerHTML = `<span style="color:var(--ember-bright)">Timeout</span> &nbsp;→&nbsp; Rerouting to <strong>${newModelName}</strong>...`; 
     }
 }
 
@@ -528,7 +704,7 @@ function newChat(): void {
     state.isLoading = false;
     const inp = $('prompt-input') as HTMLTextAreaElement;
     if (inp) { inp.value = ''; inp.style.height = 'auto'; }
-    renderHome();
+    renderApp();
     setSend(true);
 }
 
@@ -562,58 +738,3 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 console.log('[Xevora] Fallback matrix ready · primary:', getActiveProvider().name);
-
-(window as any).openPreview = function(btn: HTMLElement) {
-    const row = btn.closest('.msg-row');
-    if (!row) return;
-    
-    // Extract code blocks
-    const blocks = row.querySelectorAll('.code-block');
-    let html = '';
-    let css = '';
-    let js = '';
-    
-    blocks.forEach(block => {
-        const lang = block.getAttribute('data-lang');
-        const filename = block.getAttribute('data-filename') || '';
-        const rawCode = block.querySelector('code')?.textContent || '';
-        
-        if (lang === 'html' || filename.endsWith('.html')) html = rawCode;
-        else if (lang === 'css' || filename.endsWith('.css')) css = rawCode;
-        else if (lang === 'javascript' || lang === 'js' || filename.endsWith('.js')) js = rawCode;
-    });
-    
-    if (!html) {
-        // If there's no HTML but there is JS/CSS, maybe wrap it in a boilerplate?
-        // Otherwise alert the user.
-        html = '<!DOCTYPE html><html><head></head><body><h1>Live Preview</h1><p>No HTML file generated by AI to preview.</p></body></html>';
-    }
-    
-    // Assemble
-    const assembled = html
-        .replace('</head>', `<style>${css}</style></head>`)
-        .replace('</body>', `<script>${js}</script></body>`);
-        
-    // Spawn preview modal
-    let modal = document.getElementById('preview-modal');
-    if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'preview-modal';
-        modal.innerHTML = `
-            <div style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.9); z-index:9999; display:flex; flex-direction:column; padding: 32px; box-sizing: border-box;">
-                <div style="display:flex; justify-content:space-between; align-items:center; background: #0a0a0a; padding: 12px 24px; border-radius: 12px 12px 0 0; border: 1px solid #2e2e2e; border-bottom: none;">
-                    <h3 style="color:#e8e8e8; margin:0; font-family: monospace; font-size: 14px;">Live Preview Panel</h3>
-                    <button onclick="document.getElementById('preview-modal').style.display='none'" style="background:none; border:none; color:#8a8a8a; cursor:pointer; font-size:20px; transition: color 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#8a8a8a'">✖</button>
-                </div>
-                <iframe id="preview-frame" style="flex:1; width:100%; background:#fff; border: 1px solid #2e2e2e; border-radius: 0 0 12px 12px;"></iframe>
-            </div>
-        `;
-        document.body.appendChild(modal);
-    }
-    
-    modal.style.display = 'flex';
-    const iframe = document.getElementById('preview-frame') as HTMLIFrameElement;
-    if (iframe) {
-        iframe.srcdoc = assembled;
-    }
-};
